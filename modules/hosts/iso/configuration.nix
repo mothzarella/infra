@@ -62,8 +62,6 @@
 
       environment.systemPackages = [nixinstall pkgs.nixos-facter]; # facter.json for new hosts
 
-      networking.networkmanager.enable = true; # nmtui
-      networking.wireless.enable = lib.mkForce false;
       networking.modemmanager.enable = false; # no WWAN modem
 
       zramSwap.enable = true; # live system runs from ram
