@@ -1,0 +1,19 @@
+name: iso
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  iso:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: ./.github/actions/nix
+      - run: nix build .#iso
+      - run: gh release create "$GITHUB_REF_NAME" result/iso/*.iso
+        env:
+          GH_TOKEN: ${{ github.token }}

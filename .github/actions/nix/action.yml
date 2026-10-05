@@ -1,0 +1,10 @@
+name: nix
+description: Install Lix with the flake's experimental features
+runs:
+  using: composite
+  steps:
+    - uses: samueldr/lix-gha-installer-action@a0fee77b2a98bb7c5c0ed7ae6d6ad4903dbdad0d # v2026-06-15
+      with:
+        extra_nix_config: |
+          experimental-features = nix-command flakes pipe-operator
+          accept-flake-config = true
