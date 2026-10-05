@@ -44,6 +44,10 @@
         }
         "/var/lib/NetworkManager"
         {
+          directory = "/var/lib/iwd"; # known networks, drives autoconnect
+          mode = "0700";
+        }
+        {
           directory = "/var/lib/lockdown"; # iPhone pair records
           user = "usbmux";
           group = "usbmux";
