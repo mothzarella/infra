@@ -13,6 +13,7 @@
 
       # CLI
       curl
+      openssh # ssh, scp
       ripgrep # grep
       fd # find
       sd # sed
@@ -66,6 +67,10 @@
     "Downloads"
     "Pictures"
     ".config/git"
+    {
+      directory = ".ssh";
+      mode = "0700";
+    }
     ".config/nnn"
     ".local/share/zathura"
     ".local/share/zoxide"
