@@ -13,6 +13,12 @@
     };
     nix.optimise.automatic = true;
 
+    nix.settings.min-free = 5 * 1024 * 1024 * 1024;
+    nix.settings.max-free = 15 * 1024 * 1024 * 1024;
+    nix.settings.connect-timeout = 5;
+    nix.settings.fallback = true;
+    nix.settings.warn-dirty = false;
+
     environment.systemPackages = [pkgs.gitMinimal];
 
     nix.settings.substituters = ["https://nix-community.cachix.org"];
