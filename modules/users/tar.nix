@@ -1,10 +1,52 @@
 {config, ...}: {
   aspects.tar.includes = with config.aspects; [xdg];
 
-  aspects.tar.user = {pkgs, ...}: {
+  aspects.tar.nixos = {
+    lib,
+    pkgs,
+    ...
+  }: {
+    environment.sessionVariables = {
+      EDITOR = lib.getExe pkgs.neovim;
+      VISUAL = lib.getExe pkgs.neovim;
+    };
+
+    preservation.preserveAt."/persistent".users.tar.directories = [
+      "Documents"
+      "Downloads"
+      "Pictures"
+      ".config/git"
+      {
+        directory = ".ssh";
+        mode = "0700";
+      }
+      ".config/claude"
+      ".config/nnn"
+      ".local/share/zathura"
+      ".local/share/zoxide"
+      ".local/state/bash"
+      ".local/state/nvim"
+      ".local/state/wireplumber"
+      ".cache/tealdeer"
+    ];
+  };
+
+  aspects.tar.user = {
+    lib,
+    pkgs,
+    ...
+  }: {
     isNormalUser = true;
     extraGroups = ["wheel"];
     hashedPasswordFile = "/persistent/passwd";
+
+    mimeApps =
+      lib.genAttrs ["application/pdf" "application/epub+zip"] (_: "org.pwmt.zathura-pdf-mupdf.desktop")
+      // lib.genAttrs (map (t: "image/${t}") ["png" "jpeg" "gif" "webp" "bmp" "tiff" "svg+xml" "avif" "heif" "jxl"]) (_: "imv.desktop")
+      // {
+        "text/plain" = "nvim.desktop";
+        "inode/directory" = "nnn.desktop";
+      };
 
     packages = with pkgs; [
       # GUI
@@ -17,19 +59,19 @@
       ripgrep # grep
       fd # find
       sd # sed
-      eza # ls
       ncdu # du
       bottom # top
       jq # json
       nnn # file manager
-      gitMinimal # cached, no python
+      gitMinimal
       zoxide # cd (w fzf)
       pv # pipe
       tealdeer # tldr
       entr # file watcher
       wiremix # pavucontrol
       abduco # session detach
-      mtm # tmux
+
+      claude-code
 
       neovim
       vis
@@ -55,28 +97,11 @@
       set index-active-bg "#ffffff"
       set index-active-fg "#000000"
 
-      # ctrl+r toggles dark mode
+      # dark pages, ctrl+r back to original colors
+      set recolor true
       set recolor-lightcolor "#000000"
       set recolor-darkcolor "#ffffff"
       set recolor-keephue true
     '';
   };
-
-  aspects.tar.nixos.preservation.preserveAt."/persistent".users.tar.directories = [
-    "Documents"
-    "Downloads"
-    "Pictures"
-    ".config/git"
-    {
-      directory = ".ssh";
-      mode = "0700";
-    }
-    ".config/nnn"
-    ".local/share/zathura"
-    ".local/share/zoxide"
-    ".local/state/bash"
-    ".local/state/nvim"
-    ".local/state/wireplumber"
-    ".cache/tealdeer"
-  ];
 }
