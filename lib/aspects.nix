@@ -60,7 +60,8 @@
           ./home.nix
           {
             networking.hostName = name;
-            nixpkgs.pkgs = inputs.nixpkgs.legacyPackages.${system};
+            nixpkgs.hostPlatform = system;
+            nixpkgs.config.allowUnfree = true;
           }
         ]
         ++ nixos
