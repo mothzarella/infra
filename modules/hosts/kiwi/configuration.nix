@@ -57,6 +57,9 @@
       boot.kernel.sysctl."vm.swappiness" = 180; # zram beats dropping page cache
       boot.kernel.sysctl."vm.page-cluster" = 0; # no swap readahead on zram
 
+      nix.daemonCPUSchedPolicy = "idle"; # rebuilds don't starve the desktop
+      nix.daemonIOSchedClass = "idle";
+
       services.thermald.enable = true;
 
       services.tlp = {
