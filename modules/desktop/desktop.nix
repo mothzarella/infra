@@ -2,28 +2,25 @@
   mango = pkgs: pkgs.mango.override {enableXWayland = false;};
 in {
   aspects.desktop = {
-    includes = with config.aspects; [audio chromium];
-    nixos = {pkgs, ...}: {
+    includes = with config.aspects; [audio chromium xdg];
+    nixos = {
+      lib,
+      pkgs,
+      ...
+    }: {
       hardware.graphics.enable = true;
+      # only what is run by hand, the rest is referenced by store path
       environment.systemPackages = with pkgs; [
         (mango pkgs)
         foot
-        wmenu
-        waylock
-        grim
-        slurp
-        brightnessctl
         wl-clipboard-rs # wl-clipboard
-        swayidle # idle lock
-        wlopm # dpms
-        fnott # notifications
         libnotify # notify-send
-        yambar # bar
-        wlsunset # night light
         wlr-randr # xrandr
       ];
 
-      environment.sessionVariables.GRIM_DEFAULT_DIR = "$HOME/Pictures";
+      environment.sessionVariables.TERMINAL = lib.getExe pkgs.foot;
+
+      services.dbus.packages = [pkgs.fnott]; # notifications, started on demand
 
       preservation.preserveAt."/persistent".directories = ["/var/lib/systemd/backlight"];
 
@@ -36,68 +33,109 @@ in {
       pkgs,
       ...
     }: let
+      exe = lib.getExe;
+      waylock = "${exe pkgs.waylock} -fork-on-lock";
+      wlopm = exe pkgs.wlopm;
+      grim = exe pkgs.grim;
+      brightnessctl = exe pkgs.brightnessctl;
+      wpctl = lib.getExe' pkgs.wireplumber "wpctl";
+      gtk = pkgs.writeText "settings.ini" "[Settings]\ngtk-application-prefer-dark-theme=1\n";
+
       mangoTags = pkgs.writeShellScript "mango-tags" ''
-        ${mango pkgs}/bin/mmsg watch all-tags | ${pkgs.jq}/bin/jq --unbuffered -r '
+        ${lib.getExe' (mango pkgs) "mmsg"} watch all-tags | ${exe pkgs.jq} --unbuffered -r '
           .all_tags[0].tags
           | map(select(.is_active or .is_urgent or .client_count > 0)
-              | if .is_active then "[\(.index)]"
-                elif .is_urgent then "!\(.index)!"
-                else " \(.index) " end)
+              | ["壹","貳","參","肆","伍","陸","柒","捌","玖"][.index - 1] as $n
+              | if .is_active then "[\($n)]"
+                elif .is_urgent then "!\($n)!"
+                else " \($n) " end)
           | "tags|string|\(join(""))\n"'
       '';
-    in {
-      files.".config/mango/config.conf" = pkgs.writeText "config.conf" ''
-        animations=0
 
-        exec-once=fnott
-        exec-once=wlsunset -l 41.9 -L 12.5
-        exec-once=swayidle -w
-        exec-once=yambar
+      tagBinds = lib.concatMapStrings (n: ''
+        bind=SUPER,${n},view,${n},0
+        bind=SUPER+CTRL,${n},tag,${n},0
+      '') (map toString (lib.range 1 9));
+    in {
+      mimeApps."x-scheme-handler/terminal" = "foot.desktop";
+
+      files.".config/mango/config.conf" = pkgs.writeText "config.conf" ''
+        animation_type_open=zoom
+        animation_type_close=zoom
+        zoom_initial_ratio=0.95
+        zoom_end_ratio=0.95
+        fadein_begin_opacity=0
+        fadeout_begin_opacity=1
+        animation_duration_move=150
+        animation_duration_open=120
+        animation_duration_close=100
+        animation_duration_tag=150
+        animation_curve_open=0.22,1,0.36,1
+        animation_curve_move=0.22,1,0.36,1
+        animation_curve_tag=0.22,1,0.36,1
+        animation_curve_close=0.22,1,0.36,1
+
+        # border only on the focused window
+        borderpx=2
+        no_border_when_single=1
+        rootcolor=0x000000ff
+        bordercolor=0x00000000
+        focuscolor=0xffffffff
+        urgentcolor=0xff5555ff
+        gappih=0
+        gappiv=0
+        gappoh=0
+        gappov=0
+
+        # a single window is centered, otherwise the focused one sticks to an edge so 0.5+0.5 fill the screen
+        tagrule=id:*,layout_name:scroller
+        circle_layout=scroller,tile,monocle
+        scroller_structs=0
+        scroller_default_proportion=0.5
+        scroller_proportion_preset=0.5,0.75,1.0
+
+        exec-once=${exe pkgs.wbg} -s ~/Pictures/wallpaper
+        exec-once=${exe pkgs.wlsunset} -l 41.9 -L 12.5
+        exec-once=${exe pkgs.swayidle} -w
+        exec-once=${exe pkgs.yambar}
 
         xkb_rules_layout=us
 
-        bind=SUPER,Return,spawn,foot
-        bind=SUPER,p,spawn_shell,wmenu-run -f "Unifont 12"
-        bind=SUPER+SHIFT,l,spawn,waylock
-        bind=NONE,Print,spawn,grim
-        bind=SHIFT,Print,spawn_shell,grim -g "$(slurp)"
-        bind=NONE,XF86MonBrightnessUp,spawn,brightnessctl s +5%
-        bind=NONE,XF86MonBrightnessDown,spawn,brightnessctl s 5%-
-        bind=NONE,XF86AudioRaiseVolume,spawn,wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
-        bind=NONE,XF86AudioLowerVolume,spawn,wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-        bind=NONE,XF86AudioMute,spawn,wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+        bind=SUPER,Return,spawn,${exe pkgs.foot}
+        bind=SUPER,p,spawn_shell,${lib.getExe' pkgs.wmenu "wmenu-run"} -f "Unifont 12"
+        bind=SUPER+SHIFT,l,spawn,${waylock}
+        bind=NONE,Print,spawn,${grim}
+        bind=SHIFT,Print,spawn_shell,${grim} -g "$(${exe pkgs.slurp})"
+        bind=NONE,XF86MonBrightnessUp,spawn,${brightnessctl} s +5%
+        bind=NONE,XF86MonBrightnessDown,spawn,${brightnessctl} s 5%-
+        bind=NONE,XF86AudioRaiseVolume,spawn,${wpctl} set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
+        bind=NONE,XF86AudioLowerVolume,spawn,${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-
+        bind=NONE,XF86AudioMute,spawn,${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle
         bind=SUPER,q,killclient,
         bind=SUPER+SHIFT,e,quit,
         bind=SUPER,r,reload_config,
-        bind=SUPER,j,focusstack,next
-        bind=SUPER,k,focusstack,prev
         bind=SUPER,f,togglefullscreen,
         bind=SUPER,space,togglefloating,
+        bind=SUPER,n,switch_layout,
+        bind=SUPER,w,switch_proportion_preset,
 
-        bind=SUPER,1,view,1,0
-        bind=SUPER,2,view,2,0
-        bind=SUPER,3,view,3,0
-        bind=SUPER,4,view,4,0
-        bind=SUPER,5,view,5,0
-        bind=SUPER,6,view,6,0
-        bind=SUPER,7,view,7,0
-        bind=SUPER,8,view,8,0
-        bind=SUPER,9,view,9,0
-        bind=SUPER+SHIFT,1,tag,1,0
-        bind=SUPER+SHIFT,2,tag,2,0
-        bind=SUPER+SHIFT,3,tag,3,0
-        bind=SUPER+SHIFT,4,tag,4,0
-        bind=SUPER+SHIFT,5,tag,5,0
-        bind=SUPER+SHIFT,6,tag,6,0
-        bind=SUPER+SHIFT,7,tag,7,0
-        bind=SUPER+SHIFT,8,tag,8,0
-        bind=SUPER+SHIFT,9,tag,9,0
-
+        bind=SUPER,h,focusdir,left
+        bind=SUPER,j,focusdir,down
+        bind=SUPER,k,focusdir,up
+        bind=SUPER,l,focusdir,right
+        bind=SUPER+CTRL,h,exchange_client,left
+        bind=SUPER+CTRL,j,exchange_client,down
+        bind=SUPER+CTRL,k,exchange_client,up
+        bind=SUPER+CTRL,l,exchange_client,right
+        ${tagBinds}
         mousebind=SUPER,btn_left,moveresize,curmove
         mousebind=SUPER,btn_right,moveresize,curresize
       '';
-
       files.".config/foot/foot.ini" = pkgs.writeText "foot.ini" "font=Unifont:pixelsize=16\n";
+
+      # gtk apps (zathura, file pickers)
+      files.".config/gtk-3.0/settings.ini" = gtk;
+      files.".config/gtk-4.0/settings.ini" = gtk;
 
       files.".config/yambar/config.yml" = (pkgs.formats.yaml {}).generate "config.yml" {
         bar = {
@@ -106,7 +144,7 @@ in {
           spacing = 8;
           margin = 6;
           font = "Unifont:pixelsize=16";
-          background = "000000ff";
+          background = "00000000";
           foreground = "ffffffff";
           left = [
             {
@@ -120,8 +158,12 @@ in {
             {
               battery = {
                 name = "BAT0"; # ls /sys/class/power_supply
-                poll-interval = 30000;
-                content.string.text = "{capacity}% {state}";
+                # AC plug events land on ADP1, not BAT0: poll. On AC at the charge threshold the state is "not charging"
+                poll-interval = 5000;
+                content.map = {
+                  default.string.text = "+{capacity}%";
+                  conditions."state == discharging".string.text = "{capacity}%";
+                };
               };
             }
             {
@@ -137,7 +179,7 @@ in {
       files.".config/fnott/fnott.ini" = pkgs.writeText "fnott.ini" (lib.generators.toINIWithGlobalSection {} {
         globalSection = {
           max-width = 400;
-          selection-helper = "wmenu";
+          selection-helper = lib.getExe pkgs.wmenu;
           background = "000000ff";
           border-color = "ffffffff";
           title-font = "Unifont:pixelsize=16";
@@ -152,10 +194,10 @@ in {
       });
 
       files.".config/swayidle/config" = pkgs.writeText "swayidle" ''
-        timeout 300 'waylock -fork-on-lock'
-        timeout 360 'wlopm --off \*' resume 'wlopm --on \*'
-        before-sleep 'waylock -fork-on-lock'
-        after-resume 'wlopm --on \*'
+        timeout 300 '${waylock}'
+        timeout 360 '${wlopm} --off \*' resume '${wlopm} --on \*'
+        before-sleep '${waylock}'
+        after-resume '${wlopm} --on \*'
       '';
     };
   };
