@@ -5,7 +5,6 @@
     nix.registry.nixpkgs.flake = inputs.nixpkgs;
     nix.settings.nix-path = ["nixpkgs=${inputs.nixpkgs}"]; # nix-shell -p, <nixpkgs>
     nix.settings.allowed-users = ["@wheel"];
-    nix.settings.use-xdg-base-directories = true; # ~/.local/state/nix
 
     nix.gc = {
       automatic = true;
