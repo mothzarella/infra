@@ -25,6 +25,8 @@
       i18n.defaultLocale = "en_US.UTF-8";
       console.keyMap = "us";
 
+      programs.nix-ld.enable = true;
+
       # --------------------------------------------------------------- hardware
       disko.devices.disk.main = {
         device = "/dev/disk/by-id/ata-Teclast_128GB_NA850-2280_AA000000000112608242";
