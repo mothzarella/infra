@@ -40,6 +40,7 @@ in
       {
         lib,
         pkgs,
+        osConfig,
         ...
       }:
       let
@@ -111,7 +112,10 @@ in
             exec-once=${exe pkgs.swayidle} -w
             exec-once=${exe pkgs.yambar}
 
-            xkb_rules_layout=us
+            xkb_rules_model=${osConfig.services.xserver.xkb.model}
+            xkb_rules_layout=${osConfig.services.xserver.xkb.layout}
+            xkb_rules_variant=${osConfig.services.xserver.xkb.variant}
+            xkb_rules_options=${osConfig.services.xserver.xkb.options}
 
             bind=SUPER,d,spawn,${exe pkgs.foot}
             bind=SUPER,p,spawn_shell,${lib.getExe' pkgs.wmenu "wmenu-run"} -f "Unifont 12"

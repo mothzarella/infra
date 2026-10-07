@@ -56,7 +56,7 @@ let
       user =
         users
         |> map (
-          u: { pkgs, ... }: {
+          u: { config, pkgs, ... }: {
             users.users.${u.name} = _: {
               imports =
                 [
@@ -65,7 +65,10 @@ let
                 ]
                 |> closure
                 |> map (a: a.user);
-              _module.args.pkgs = pkgs;
+              _module.args = {
+                inherit pkgs;
+                osConfig = config;
+              };
             };
           }
         );
