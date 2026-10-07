@@ -20,7 +20,6 @@ in
         # only what is run by hand, the rest is referenced by store path
         environment.systemPackages = with pkgs; [
           (mango pkgs)
-          foot
           wl-clipboard-rs # wl-clipboard
           libnotify # notify-send
           wlr-randr # xrandr
@@ -28,7 +27,7 @@ in
 
         environment.sessionVariables.TERMINAL = lib.getExe pkgs.foot;
 
-        services.dbus.packages = [ pkgs.fnott ]; # notifications, started on demand
+        services.dbus.packages = [ pkgs.fnott ]; # notifications
 
         preservation.preserveAt."/persistent".directories = [ "/var/lib/systemd/backlight" ];
 
@@ -117,8 +116,12 @@ in
             xkb_rules_variant=${osConfig.services.xserver.xkb.variant}
             xkb_rules_options=${osConfig.services.xserver.xkb.options}
 
-            bind=SUPER,d,spawn,${exe pkgs.foot}
-            bind=SUPER,p,spawn_shell,${lib.getExe' pkgs.wmenu "wmenu-run"} -f "Unifont 12"
+            # dialogs with a parent or fixed size already float, these have neither
+            windowrule=isfloating:1,appid:^xdg-desktop-portal
+            windowrule=isfloating:1,title:^Picture in picture$
+
+            bind=SUPER,Return,spawn,${exe pkgs.foot}
+            bind=SUPER,d,spawn_shell,${lib.getExe' pkgs.wmenu "wmenu-run"} -f "Unifont 12"
             bind=SUPER+SHIFT,l,spawn,${waylock}
             bind=NONE,Print,spawn,${grim}
             bind=SHIFT,Print,spawn_shell,${grim} -g "$(${exe pkgs.slurp})"
