@@ -16,4 +16,5 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: ./.github/actions/nix
+      - run: nix fmt -- --ci # nixfmt, statix, deadnix, yamlfmt
       - run: nix flake check --no-build
