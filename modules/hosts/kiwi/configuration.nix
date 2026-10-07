@@ -8,10 +8,10 @@
     desktop
     disko
     minimal
-    mullvad
     networking
     preservation
     secureboot
+    vpn
   ];
 
   aspects.kiwi.nixos =
