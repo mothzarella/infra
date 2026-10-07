@@ -49,6 +49,12 @@ in
         grim = exe pkgs.grim;
         brightnessctl = exe pkgs.brightnessctl;
         wpctl = lib.getExe' pkgs.wireplumber "wpctl";
+        # line is font height + 2, +4 matches the 20px bar
+        wmenu = pkgs.wmenu.overrideAttrs (old: {
+          postPatch = (old.postPatch or "") + ''
+            substituteInPlace menu.c --replace-fail "line_height = height + 2" "line_height = height + 4"
+          '';
+        });
         gtk = pkgs.writeText "settings.ini" "[Settings]\ngtk-application-prefer-dark-theme=1\n";
 
         mangoTags = pkgs.writeShellScript "mango-tags" ''
@@ -121,7 +127,7 @@ in
             windowrule=isfloating:1,title:^Picture in picture$
 
             bind=SUPER,Return,spawn,${exe pkgs.foot}
-            bind=SUPER,d,spawn_shell,${lib.getExe' pkgs.wmenu "wmenu-run"} -f "Unifont 12"
+            bind=SUPER,d,spawn_shell,${lib.getExe' wmenu "wmenu-run"} -f "Unifont 16px" -N 000000 -n ffffff -M ffffff -m 000000
             bind=SUPER+SHIFT,l,spawn,${waylock}
             bind=NONE,Print,spawn,${grim}
             bind=SHIFT,Print,spawn_shell,${grim} -g "$(${exe pkgs.slurp})"
@@ -199,7 +205,7 @@ in
             lib.generators.toINIWithGlobalSection { } {
               globalSection = {
                 max-width = 400;
-                selection-helper = lib.getExe pkgs.wmenu;
+                selection-helper = lib.getExe wmenu;
                 background = "000000ff";
                 border-color = "ffffffff";
                 title-font = "Unifont:pixelsize=16";
