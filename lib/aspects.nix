@@ -77,6 +77,7 @@ let
           networking.hostName = name;
           nixpkgs.hostPlatform = system;
           nixpkgs.config.allowUnfree = true;
+          _module.args.users = map (u: u.name) users;
         }
       ]
       ++ nixos

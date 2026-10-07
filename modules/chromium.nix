@@ -10,9 +10,9 @@
 
     nixos =
       {
-        config,
         lib,
         pkgs,
+        users,
         ...
       }:
       let
@@ -62,7 +62,7 @@
             "--fingerprinting-canvas-measuretext-noise"
             "--fingerprinting-client-rects-noise"
             "--no-pings"
-            "--webrtc-ip-handling-policy=default_public_interface_only" # no LAN IP leak, calls still work over the VPN
+            "--webrtc-ip-handling-policy=default_public_interface_only" # no LAN IP leak
 
             # security
             "--force-punycode-hostnames" # no homograph domains
@@ -96,14 +96,14 @@
 
             # security
             HttpsOnlyMode = "force_enabled";
-            PasswordManagerEnabled = false; # no keyring: stored with a hardcoded key
+            PasswordManagerEnabled = false; # no keyring
             AutofillCreditCardEnabled = false;
             AutofillAddressEnabled = false;
 
             # performance
-            HighEfficiencyModeEnabled = true; # memory saver: discard inactive tabs
-            MemorySaverModeSavings = 1; # balanced, 2 reloads tabs too often
-            BatterySaverModeAvailability = 1; # low battery: throttle frames and background
+            HighEfficiencyModeEnabled = true; # memory saver (discard inactive tabs)
+            MemorySaverModeSavings = 1; # balanced
+            BatterySaverModeAvailability = 1; # low battery (throttle frames and background)
             BackgroundModeEnabled = false; # nothing left running after closing
           };
           initialPrefs.vertical_tabs.enabled = true; # new profiles only
@@ -112,10 +112,9 @@
         environment.systemPackages = [ chromium ];
         environment.sessionVariables.BROWSER = lib.getExe chromium;
 
-        preservation.preserveAt."/persistent".users =
-          config.users.users
-          |> lib.filterAttrs (_: u: u.isNormalUser)
-          |> lib.mapAttrs (_: _: { directories = [ ".config/chromium" ]; });
+        preservation.preserveAt."/persistent".users = lib.genAttrs users (_: {
+          directories = [ ".config/chromium" ];
+        });
       };
   };
 }
