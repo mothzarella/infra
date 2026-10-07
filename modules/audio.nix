@@ -1,10 +1,9 @@
 {
-  aspects.audio = {
-    nixos.services.pipewire = {
-      enable = true;
-      alsa.enable = true;
-      pulse.enable = true;
-    };
-    user.extraGroups = ["audio"];
+  aspects.audio.nixos.services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    pulse.enable = true;
   };
+
+  aspects.audio.user.extraGroups = [ "audio" ];
 }

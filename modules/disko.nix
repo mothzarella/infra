@@ -1,51 +1,68 @@
-{inputs, ...}: {
+{ inputs, ... }: {
   aspects.disko.nixos = {
-    imports = [inputs.disko.nixosModules.disko];
+    imports = [ inputs.disko.nixosModules.disko ];
 
     disko.devices.disk.main = {
       type = "disk";
-      content.type = "gpt";
+      content = {
+        type = "gpt";
 
-      content.partitions.esp = {
-        name = "ESP"; # partlabel disk-main-ESP, matches the formatted disk
-        type = "EF00";
-        size = "1G";
+        partitions.esp = {
+          name = "ESP"; # partlabel disk-main-ESP, matches the formatted disk
+          type = "EF00";
+          size = "1G";
 
-        content.type = "filesystem";
-        content.format = "vfat";
-        content.mountpoint = "/boot";
-        content.mountOptions = ["umask=0077"];
-      };
-
-      content.partitions.root = {
-        size = "100%";
-
-        content.type = "luks";
-        content.name = "cryptroot";
-        content.settings.allowDiscards = true;
-        content.settings.crypttabExtraOpts = ["tpm2-device=auto" "tpm2-measure-pcr=yes"]; # PCR 15
-        content.content.type = "btrfs";
-        content.content.extraArgs = ["-f"];
-
-        content.content.subvolumes =
-          builtins.mapAttrs (_: mountpoint: {
-            inherit mountpoint;
-            mountOptions = ["compress=zstd" "noatime"];
-          }) {
-            "/root" = "/";
-            "/nix" = "/nix";
-            "/persistent" = "/persistent";
+          content = {
+            type = "filesystem";
+            format = "vfat";
+            mountpoint = "/boot";
+            mountOptions = [ "umask=0077" ];
           };
+        };
+
+        partitions.root = {
+          size = "100%";
+
+          content = {
+            type = "luks";
+            name = "cryptroot";
+            settings.allowDiscards = true;
+            settings.crypttabExtraOpts = [
+              "tpm2-device=auto"
+              "tpm2-measure-pcr=yes"
+            ]; # PCR 15
+
+            content = {
+              type = "btrfs";
+              extraArgs = [ "-f" ];
+
+              subvolumes =
+                builtins.mapAttrs
+                  (_: mountpoint: {
+                    inherit mountpoint;
+                    mountOptions = [
+                      "compress=zstd"
+                      "noatime"
+                    ];
+                  })
+                  {
+                    "/root" = "/";
+                    "/nix" = "/nix";
+                    "/persistent" = "/persistent";
+                  };
+            };
+          };
+        };
       };
     };
 
     services.btrfs.autoScrub.enable = true;
-    services.btrfs.autoScrub.fileSystems = ["/"];
+    services.btrfs.autoScrub.fileSystems = [ "/" ];
 
     boot.initrd.systemd.services.rollback = {
-      wantedBy = ["initrd.target"];
-      after = ["systemd-cryptsetup@cryptroot.service"];
-      before = ["sysroot.mount"];
+      wantedBy = [ "initrd.target" ];
+      after = [ "systemd-cryptsetup@cryptroot.service" ];
+      before = [ "sysroot.mount" ];
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
 

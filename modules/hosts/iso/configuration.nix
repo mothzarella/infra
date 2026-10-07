@@ -2,22 +2,24 @@
   config,
   inputs,
   ...
-}: {
-  hosts.iso = {};
+}:
+{
+  hosts.iso = { };
 
-  aspects.iso = {
-    includes = [config.aspects.lix];
-    nixos = {
+  aspects.iso.includes = [ config.aspects.lix ];
+  aspects.iso.nixos =
+    {
       config,
       lib,
       modulesPath,
       pkgs,
       ...
-    }: let
+    }:
+    let
       nixinstall = pkgs.writeShellApplication {
         name = "nixinstall";
         runtimeInputs = [
-          (pkgs.disko.override {nix = config.nix.package;}) # lix
+          (pkgs.disko.override { nix = config.nix.package; }) # lix
           config.nix.package
           pkgs.mkpasswd # not busybox: real yescrypt
           config.system.build.nixos-install
@@ -48,9 +50,12 @@
         '';
       };
 
-      name = "${config.networking.hostName}-${config.system.nixos.release}-${inputs.self.shortRev or "dirty"}-${pkgs.stdenv.hostPlatform.uname.processor}";
-    in {
-      imports = ["${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"];
+      name = "${config.networking.hostName}-${config.system.nixos.release}-${
+        inputs.self.shortRev or "dirty"
+      }-${pkgs.stdenv.hostPlatform.uname.processor}";
+    in
+    {
+      imports = [ "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix" ];
 
       image.baseName = lib.mkImageMediaOverride name;
       isoImage = {
@@ -60,13 +65,15 @@
         squashfsCompression = "zstd -Xcompression-level 6"; # default level 19 (much slower build)
       };
 
-      environment.systemPackages = [nixinstall pkgs.nixos-facter]; # facter.json for new hosts
+      environment.systemPackages = [
+        nixinstall
+        pkgs.nixos-facter
+      ]; # facter.json for new hosts
 
       networking.modemmanager.enable = false; # no WWAN modem
 
       zramSwap.enable = true; # live system runs from ram
 
-      system.switch.enable = false; # immutable
       nix.settings.flake-registry = ""; # flake is embedded
 
       # "too many open files" on big installs
@@ -80,25 +87,29 @@
       ];
 
       # ---------------------------------------------------------- optimizations
-      nixpkgs.overlays = lib.mkForce []; # re-instantiates the external pkgs
-      boot.supportedFilesystems.zfs = false;
-      boot.supportedFilesystems.cifs = lib.mkForce false; # cifs-utils and xfsprogs pull python3
-      boot.supportedFilesystems.xfs = lib.mkForce false;
-      boot.swraid.enable = lib.mkForce false;
+      nixpkgs.overlays = lib.mkForce [ ]; # re-instantiates the external pkgs
+      boot = {
+        supportedFilesystems = {
+          zfs = false;
+          cifs = lib.mkForce false; # cifs-utils and xfsprogs pull python3
+          xfs = lib.mkForce false;
+        };
+        swraid.enable = lib.mkForce false;
+      };
       programs.git.package = pkgs.gitMinimal; # git pulls perl
       documentation.enable = lib.mkForce false;
-      environment.defaultPackages = lib.mkForce []; # perl rsync strace
+      environment.defaultPackages = lib.mkForce [ ]; # perl rsync strace
       services.userborn.enable = true; # no perl
       system = {
+        switch.enable = false; # immutable
         etc.overlay.enable = true; # no perl
         installer.channel.enable = false; # no nixpkgs copy
-        extraDependencies = lib.mkForce []; # no offline install
+        extraDependencies = lib.mkForce [ ]; # no offline install
         disableInstallerTools = true;
         tools.nixos-install.enable = true;
         tools.nixos-enter.enable = true;
       };
     };
-  };
 
   flake.packages.x86_64-linux.iso = config.flake.nixosConfigurations.iso.config.system.build.isoImage;
 }

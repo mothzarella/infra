@@ -1,3 +1,3 @@
 {
-  aspects.nomodeset.nixos.boot.kernelParams = ["nomodeset"];
+  aspects.nomodeset.nixos.boot.kernelParams = [ "nomodeset" ];
 }

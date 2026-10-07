@@ -1,11 +1,12 @@
-{inputs, ...}: {
+{ inputs, ... }: {
   aspects.preservation.nixos = {
-    imports = [inputs.preservation.nixosModules.preservation];
+    imports = [ inputs.preservation.nixosModules.preservation ];
 
-    fileSystems."/persistent" = {
-      neededForBoot = true;
-      options = ["nosuid" "nodev"];
-    };
+    fileSystems."/persistent".neededForBoot = true;
+    fileSystems."/persistent".options = [
+      "nosuid"
+      "nodev"
+    ];
 
     preservation = {
       enable = true;
@@ -32,7 +33,7 @@
       ];
     };
 
-    systemd.suppressedSystemUnits = ["systemd-machine-id-commit.service"];
+    systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
 
     users.mutableUsers = false; # ephemeral /etc
 

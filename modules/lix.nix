@@ -1,27 +1,36 @@
-{inputs, ...}: {
-  aspects.lix.nixos = {pkgs, ...}: {
-    nix.package = pkgs.lix;
-    nix.settings.experimental-features = ["nix-command" "flakes" "pipe-operator"];
-    nix.registry.nixpkgs.flake = inputs.nixpkgs;
-    nix.settings.nix-path = ["nixpkgs=${inputs.nixpkgs}"]; # nix-shell -p, <nixpkgs>
-    nix.settings.allowed-users = ["@wheel"];
+{ inputs, ... }: {
+  aspects.lix.nixos = { pkgs, ... }: {
+    nix = {
+      package = pkgs.lix;
+      registry.nixpkgs.flake = inputs.nixpkgs;
 
-    nix.gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 14d";
+      settings = {
+        experimental-features = [
+          "nix-command"
+          "flakes"
+          "pipe-operator"
+        ];
+        nix-path = [ "nixpkgs=${inputs.nixpkgs}" ]; # nix-shell -p, <nixpkgs>
+        allowed-users = [ "@wheel" ];
+
+        min-free = 5 * 1024 * 1024 * 1024;
+        max-free = 15 * 1024 * 1024 * 1024;
+        connect-timeout = 5;
+        fallback = true;
+        warn-dirty = false;
+
+        substituters = [ "https://nix-community.cachix.org" ];
+        trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+      };
+
+      gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 14d";
+      };
+      optimise.automatic = true;
     };
-    nix.optimise.automatic = true;
 
-    nix.settings.min-free = 5 * 1024 * 1024 * 1024;
-    nix.settings.max-free = 15 * 1024 * 1024 * 1024;
-    nix.settings.connect-timeout = 5;
-    nix.settings.fallback = true;
-    nix.settings.warn-dirty = false;
-
-    environment.systemPackages = [pkgs.gitMinimal];
-
-    nix.settings.substituters = ["https://nix-community.cachix.org"];
-    nix.settings.trusted-public-keys = ["nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="];
+    environment.systemPackages = [ pkgs.gitMinimal ];
   };
 }

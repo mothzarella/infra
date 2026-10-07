@@ -19,11 +19,20 @@
     securix.flake = false;
   };
 
-  outputs = inputs: let
-    inherit (inputs.nixpkgs) lib;
-  in
+  outputs =
+    inputs:
+    let
+      inherit (inputs.nixpkgs) lib;
+    in
     (lib.evalModules {
-      specialArgs = {inherit inputs;};
-      modules = [./lib/aspects.nix] ++ (./modules |> lib.filesystem.listFilesRecursive |> builtins.filter (f: lib.hasSuffix ".nix" (toString f)));
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./lib/aspects.nix
+      ]
+      ++ (
+        ./modules
+        |> lib.filesystem.listFilesRecursive
+        |> builtins.filter (f: lib.hasSuffix ".nix" (toString f))
+      );
     }).config.flake;
 }
