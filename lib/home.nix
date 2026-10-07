@@ -15,22 +15,21 @@
           };
 
           # stable links into the per-user profile: src/maid/modules/file.nix#L116-L140
-          config.packages = lib.optional (config.files != { }) (
-            pkgs.linkFarm "home-files" (
-              lib.mapAttrs' (path: lib.nameValuePair "home-files/${path}") config.files
-              // {
-                # L, not L+: never clobber user files
-                "etc/xdg/user-tmpfiles.d/home.conf" =
-                  config.files
-                  |> lib.mapAttrsToList (
-                    path: _:
-                    "L '${config.home}/${path}' - - - - /etc/profiles/per-user/${config.name}/home-files/${path}\n"
-                  )
-                  |> lib.concatStrings
-                  |> pkgs.writeText "home.conf";
-              }
-            )
-          );
+          config.packages =
+            lib.mapAttrs' (path: lib.nameValuePair "home-files/${path}") config.files
+            // {
+              # L, not L+: never clobber user files
+              "etc/xdg/user-tmpfiles.d/home.conf" =
+                config.files
+                |> lib.mapAttrsToList (
+                  path: _:
+                  "L '${config.home}/${path}' - - - - /etc/profiles/per-user/${config.name}/home-files/${path}\n"
+                )
+                |> lib.concatStrings
+                |> pkgs.writeText "home.conf";
+            }
+            |> pkgs.linkFarm "home-files"
+            |> lib.optional (config.files != { });
         }
       )
     );

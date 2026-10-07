@@ -30,22 +30,21 @@
 
         config.files = {
           ".config/mimeapps.list" =
-            (pkgs.formats.ini { listToValue = l: lib.concatStrings (map (v: "${v};") l); }).generate
-              "mimeapps.list"
+            (pkgs.formats.ini { listToValue = lib.concatMapStrings (v: "${v};"); }).generate "mimeapps.list"
               {
                 "Default Applications" = config.mimeApps;
               };
 
-          ".config/user-dirs.dirs" = pkgs.writeText "user-dirs.dirs" (
-            lib.generators.toKeyValue { } (
-              lib.mapAttrs' (k: v: lib.nameValuePair "XDG_${k}_DIR" ''"$HOME/${v}"'') {
-                DESKTOP = ""; # fallback to ~
-                DOCUMENTS = "Documents";
-                DOWNLOAD = "Downloads";
-                PICTURES = "Pictures";
-              }
-            )
-          );
+          ".config/user-dirs.dirs" =
+            {
+              DESKTOP = ""; # fallback to ~
+              DOCUMENTS = "Documents";
+              DOWNLOAD = "Downloads";
+              PICTURES = "Pictures";
+            }
+            |> lib.mapAttrs' (k: v: lib.nameValuePair "XDG_${k}_DIR" ''"$HOME/${v}"'')
+            |> lib.generators.toKeyValue { }
+            |> pkgs.writeText "user-dirs.dirs";
 
           ".config/user-dirs.conf" = pkgs.writeText "user-dirs.conf" "enabled=False\n";
         };

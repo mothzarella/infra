@@ -33,8 +33,10 @@
 
           # hashedPasswordFile must exist before first boot (mutableUsers = false)
           for entry in $(nix eval --raw "$flake#nixosConfigurations.$host.config.users.users" --apply '
-            us: toString (map (u: u.name + ":" + u.hashedPasswordFile)
-              (builtins.filter (u: u.hashedPasswordFile != null) (builtins.attrValues us)))'); do
+            us: builtins.attrValues us
+              |> builtins.filter (u: u.hashedPasswordFile != null)
+              |> map (u: u.name + ":" + u.hashedPasswordFile)
+              |> toString'); do
             while :; do
               IFS= read -rsp "password for ''${entry%%:*}: " pw && echo
               IFS= read -rsp "again: " again && echo

@@ -68,10 +68,13 @@ in
             | "tags|string|\(join(""))\n"'
         '';
 
-        tagBinds = lib.concatMapStrings (n: ''
-          bind=SUPER,${n},view,${n},0
-          bind=SUPER+CTRL,${n},tag,${n},0
-        '') (map toString (lib.range 1 9));
+        tagBinds =
+          lib.range 1 9
+          |> map toString
+          |> lib.concatMapStrings (n: ''
+            bind=SUPER,${n},view,${n},0
+            bind=SUPER+CTRL,${n},tag,${n},0
+          '');
       in
       {
         mimeApps."x-scheme-handler/terminal" = "foot.desktop";
@@ -201,8 +204,8 @@ in
             };
           };
 
-          ".config/fnott/fnott.ini" = pkgs.writeText "fnott.ini" (
-            lib.generators.toINIWithGlobalSection { } {
+          ".config/fnott/fnott.ini" =
+            {
               globalSection = {
                 max-width = 400;
                 selection-helper = lib.getExe wmenu;
@@ -218,7 +221,8 @@ in
                 default-timeout = 0;
               };
             }
-          );
+            |> lib.generators.toINIWithGlobalSection { }
+            |> pkgs.writeText "fnott.ini";
 
           ".config/swayidle/config" = pkgs.writeText "swayidle" ''
             timeout 300 '${waylock}'

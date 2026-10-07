@@ -45,18 +45,22 @@
 
         mimeApps =
           lib.genAttrs [ "application/pdf" "application/epub+zip" ] (_: "org.pwmt.zathura-pdf-mupdf.desktop")
-          // lib.genAttrs (map (t: "image/${t}") [
-            "png"
-            "jpeg"
-            "gif"
-            "webp"
-            "bmp"
-            "tiff"
-            "svg+xml"
-            "avif"
-            "heif"
-            "jxl"
-          ]) (_: "imv.desktop")
+          // (
+            [
+              "png"
+              "jpeg"
+              "gif"
+              "webp"
+              "bmp"
+              "tiff"
+              "svg+xml"
+              "avif"
+              "heif"
+              "jxl"
+            ]
+            |> map (t: lib.nameValuePair "image/${t}" "imv.desktop")
+            |> lib.listToAttrs
+          )
           // {
             "text/plain" = "nvim.desktop";
             "inode/directory" = "nnn.desktop";

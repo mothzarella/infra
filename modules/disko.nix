@@ -37,19 +37,20 @@
               extraArgs = [ "-f" ];
 
               subvolumes =
-                builtins.mapAttrs
-                  (_: mountpoint: {
+                {
+                  "/root" = "/";
+                  "/nix" = "/nix";
+                  "/persistent" = "/persistent";
+                }
+                |> builtins.mapAttrs (
+                  _: mountpoint: {
                     inherit mountpoint;
                     mountOptions = [
                       "compress=zstd"
                       "noatime"
                     ];
-                  })
-                  {
-                    "/root" = "/";
-                    "/nix" = "/nix";
-                    "/persistent" = "/persistent";
-                  };
+                  }
+                );
             };
           };
         };
