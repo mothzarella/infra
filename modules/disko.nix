@@ -8,7 +8,7 @@
         type = "gpt";
 
         partitions.esp = {
-          name = "ESP"; # partlabel disk-main-ESP, matches the formatted disk
+          name = "ESP";
           type = "EF00";
           size = "1G";
 

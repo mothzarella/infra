@@ -32,7 +32,7 @@
       # --------------------------------------------------------------- hardware
       disko.devices.disk.main = {
         device = "/dev/disk/by-id/ata-Teclast_128GB_NA850-2280_AA000000000112608242";
-        content.partitions.root.content.settings.bypassWorkqueues = true; # SSD, lower latency
+        content.partitions.root.content.settings.bypassWorkqueues = true; # SSD
         content.partitions.root.content.content.subvolumes =
           lib.genAttrs [ "/root" "/nix" "/persistent" ]
             (_: {
@@ -68,7 +68,7 @@
         kernelParams = [ "btusb.enable_autosuspend=0" ]; # QCA BT drops on autosuspend
       };
 
-      nix.daemonCPUSchedPolicy = "idle"; # rebuilds don't starve the desktop
+      nix.daemonCPUSchedPolicy = "idle";
       nix.daemonIOSchedClass = "idle";
 
       services.thermald.enable = true;
