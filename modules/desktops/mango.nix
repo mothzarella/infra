@@ -3,7 +3,7 @@ let
   mango = pkgs: pkgs.mango.override { enableXWayland = false; };
 in
 {
-  aspects.desktop = {
+  aspects.mango = {
     includes = with config.aspects; [
       audio
       chromium

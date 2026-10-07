@@ -5,7 +5,7 @@
   aspects.kiwi.includes = with config.aspects; [
     anssi
     bluetooth
-    desktop
+    mango
     disko
     minimal
     networking
