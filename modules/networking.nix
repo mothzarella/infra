@@ -30,7 +30,6 @@
 
     systemd.services.NetworkManager-wait-online.enable = false; # no boot stall
 
-    # DNS cache, no LLMNR
     services = {
       resolved.enable = true;
       resolved.settings.Resolve.LLMNR = false;

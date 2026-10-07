@@ -1,6 +1,6 @@
 { inputs, ... }: {
   aspects.anssi.nixos = {
-    # ANSSI-BP-028 rules from securix (cloud-gouv/securix modules/anssi)
+    # ANSSI-BP-028 rules from securix
     imports = [ "${inputs.securix}/modules/anssi" ];
 
     security.anssi = {

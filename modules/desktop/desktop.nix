@@ -169,8 +169,8 @@ in
               right = [
                 {
                   battery = {
-                    name = "BAT0"; # ls /sys/class/power_supply
-                    # AC plug events land on ADP1, not BAT0: poll. On AC at the charge threshold the state is "not charging"
+                    name = "BAT0";
+                    # AC events land on ADP1, not BAT0: poll ("not charging" at threshold)
                     poll-interval = 5000;
                     content.map = {
                       default.string.text = "+{capacity}%";

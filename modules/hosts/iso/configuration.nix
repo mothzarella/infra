@@ -62,7 +62,7 @@
         volumeID = lib.mkImageMediaOverride name;
         appendToMenuLabel = "";
         edition = "";
-        squashfsCompression = "zstd -Xcompression-level 6"; # default level 19 (much slower build)
+        squashfsCompression = "zstd -Xcompression-level 6"; # default 19 builds much slower
       };
 
       environment.systemPackages = [
@@ -86,23 +86,23 @@
         }
       ];
 
-      # ---------------------------------------------------------- optimizations
+      # ---------------------------------- optimizations: no perl, python, extra tools
       nixpkgs.overlays = lib.mkForce [ ]; # re-instantiates the external pkgs
       boot = {
         supportedFilesystems = {
           zfs = false;
-          cifs = lib.mkForce false; # cifs-utils and xfsprogs pull python3
+          cifs = lib.mkForce false;
           xfs = lib.mkForce false;
         };
         swraid.enable = lib.mkForce false;
       };
-      programs.git.package = pkgs.gitMinimal; # git pulls perl
+      programs.git.package = pkgs.gitMinimal;
       documentation.enable = lib.mkForce false;
-      environment.defaultPackages = lib.mkForce [ ]; # perl rsync strace
-      services.userborn.enable = true; # no perl
+      environment.defaultPackages = lib.mkForce [ ];
+      services.userborn.enable = true;
       system = {
         switch.enable = false; # immutable
-        etc.overlay.enable = true; # no perl
+        etc.overlay.enable = true;
         installer.channel.enable = false; # no nixpkgs copy
         extraDependencies = lib.mkForce [ ]; # no offline install
         disableInstallerTools = true;

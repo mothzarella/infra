@@ -58,7 +58,7 @@
 
         graphics.extraPackages = [ pkgs.intel-media-driver ];
       };
-      environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD"; # driver Gen8+
+      environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD"; # Gen8+
 
       zramSwap.enable = true; # slow SSD (8GB RAM)
 

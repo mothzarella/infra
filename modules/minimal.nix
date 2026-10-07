@@ -20,7 +20,7 @@
 
       environment.corePackages = lib.mkForce [ pkgs.busybox ];
       environment.stub-ld.enable = false;
-      programs.nano.enable = false; # busybox carry vi
+      programs.nano.enable = false; # busybox has vi
 
       documentation.man.man-db.enable = false;
       documentation.man.mandoc.enable = true;

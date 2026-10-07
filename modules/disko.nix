@@ -66,8 +66,7 @@
       unitConfig.DefaultDependencies = "no";
       serviceConfig.Type = "oneshot";
 
-      # move /root to old_roots on every boot, prune after 30 days
-      # coreutils + btrfs-progs (findutils is not in the initrd)
+      # rotate /root into old_roots each boot, prune after 30d (no findutils in initrd)
       script = ''
         shopt -s nullglob
         mkdir -p /mnt
