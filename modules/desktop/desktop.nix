@@ -113,7 +113,7 @@ in
 
             xkb_rules_layout=us
 
-            bind=SUPER,Return,spawn,${exe pkgs.foot}
+            bind=SUPER,d,spawn,${exe pkgs.foot}
             bind=SUPER,p,spawn_shell,${lib.getExe' pkgs.wmenu "wmenu-run"} -f "Unifont 12"
             bind=SUPER+SHIFT,l,spawn,${waylock}
             bind=NONE,Print,spawn,${grim}
