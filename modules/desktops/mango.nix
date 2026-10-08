@@ -68,6 +68,23 @@ in
             | "tags|string|\(join(""))\n"'
         '';
 
+        cpuGraph = pkgs.writeShellScript "cpu-graph" ''
+          bars=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
+          hist=(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+          read -r _ u n s i w q sq st _ < /proc/stat
+          prev_idle=$((i + w)) prev_total=$((u + n + s + i + w + q + sq + st))
+          while sleep 1; do
+            read -r _ u n s i w q sq st _ < /proc/stat
+            idle=$((i + w)) total=$((u + n + s + i + w + q + sq + st))
+            dt=$((total - prev_total)) di=$((idle - prev_idle))
+            prev_idle=$idle prev_total=$total
+            hist=("''${hist[@]:1}" $((((dt - di) * 7 + dt / 2) / dt)))
+            graph=""
+            for l in "''${hist[@]}"; do graph+=''${bars[l]}; done
+            printf 'cpu|string|%s\n\n' "$graph"
+          done
+        '';
+
         tagBinds =
           lib.range 1 9
           |> map toString
@@ -183,6 +200,12 @@ in
                 }
               ];
               right = [
+                {
+                  script = {
+                    path = "${cpuGraph}";
+                    content.string.text = "{cpu}";
+                  };
+                }
                 {
                   battery = {
                     name = "BAT0";
