@@ -11,6 +11,7 @@
     networking
     preservation
     secureboot
+    virtualisation
     vpn
   ];
 
