@@ -121,7 +121,6 @@
           set index-active-bg "#ffffff"
           set index-active-fg "#000000"
 
-          # dark pages, ctrl+r back to original colors
           set recolor true
           set recolor-lightcolor "#000000"
           set recolor-darkcolor "#ffffff"

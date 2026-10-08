@@ -17,7 +17,6 @@ in
       }:
       {
         hardware.graphics.enable = true;
-        # only what is run by hand, the rest is referenced by store path
         environment.systemPackages = with pkgs; [
           (mango pkgs)
           wl-clipboard-rs # wl-clipboard
@@ -49,7 +48,6 @@ in
         grim = exe pkgs.grim;
         brightnessctl = exe pkgs.brightnessctl;
         wpctl = lib.getExe' pkgs.wireplumber "wpctl";
-        # line is font height + 2, +4 matches the 20px bar
         wmenu = pkgs.wmenu.overrideAttrs (old: {
           postPatch = (old.postPatch or "") + ''
             substituteInPlace menu.c --replace-fail "line_height = height + 2" "line_height = height + 4"
