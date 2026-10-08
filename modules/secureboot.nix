@@ -8,7 +8,17 @@
     {
       imports = [ inputs.lanzaboote.nixosModules.lanzaboote ];
 
-      environment.systemPackages = [ pkgs.sbctl ];
+      # corePackages is busybox-only (minimal aspect)
+      environment.systemPackages = [
+        (pkgs.symlinkJoin {
+          name = "sbctl";
+          paths = [ pkgs.sbctl ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/sbctl --prefix PATH : ${lib.makeBinPath [ pkgs.util-linux ]}
+          '';
+        })
+      ];
 
       boot.loader = {
         efi.canTouchEfiVariables = true;
