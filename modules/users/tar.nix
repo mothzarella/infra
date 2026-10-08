@@ -9,11 +9,16 @@
         ...
       }:
       {
-        environment.sessionVariables.EDITOR = lib.getExe pkgs.neovim;
-        environment.sessionVariables.VISUAL = lib.getExe pkgs.neovim;
+        networking.stevenblack.enable = true; # blocklist in /etc/hosts
+
+        environment.sessionVariables = {
+          EDITOR = lib.getExe pkgs.neovim;
+          VISUAL = lib.getExe pkgs.neovim;
+          DO_NOT_TRACK = "1";
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
+        };
 
         preservation.preserveAt."/persistent".users.tar.directories = [
-          "Documents"
           "Downloads"
           "Pictures"
           ".config/git"
@@ -72,6 +77,7 @@
           imv # images
 
           # CLI
+          pfetch
           curl
           openssh # ssh, scp
           ripgrep # grep
