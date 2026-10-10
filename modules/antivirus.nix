@@ -45,30 +45,32 @@
         };
       };
 
-      systemd.timers.clamdscan.timerConfig.Persistent = true; # laptop is off at 04:00
-      systemd.services.clamdscan.serviceConfig = {
-        Nice = 19;
-        IOSchedulingClass = "idle";
-      };
+      systemd = {
+        timers.clamdscan.timerConfig.Persistent = true; # laptop is off at 04:00
+        services.clamdscan.serviceConfig = {
+          Nice = 19;
+          IOSchedulingClass = "idle";
+        };
 
-      # pop a desktop notification for every detection (wheel reads the system journal)
-      systemd.user.services.clamav-notify = {
-        description = "ClamAV detection notifications";
-        wantedBy = [ "graphical-session.target" ];
-        partOf = [ "graphical-session.target" ];
-        after = [ "graphical-session.target" ];
-        path = [
-          config.systemd.package
-          pkgs.libnotify
-        ];
-        script = ''
-          journalctl -f -n0 -o cat --grep 'FOUND' \
-            -u clamav-daemon.service -u clamav-clamonacc.service -u clamdscan.service |
-            while IFS= read -r line; do
-              notify-send -u critical -a ClamAV "Malware blocked" "$line"
-            done
-        '';
-        serviceConfig.Restart = "on-failure";
+        # pop a desktop notification for every detection (wheel reads the system journal)
+        user.services.clamav-notify = {
+          description = "ClamAV detection notifications";
+          wantedBy = [ "graphical-session.target" ];
+          partOf = [ "graphical-session.target" ];
+          after = [ "graphical-session.target" ];
+          path = [
+            config.systemd.package
+            pkgs.libnotify
+          ];
+          script = ''
+            journalctl -f -n0 -o cat --grep 'FOUND' \
+              -u clamav-daemon.service -u clamav-clamonacc.service -u clamdscan.service |
+              while IFS= read -r line; do
+                notify-send -u critical -a ClamAV "Malware blocked" "$line"
+              done
+          '';
+          serviceConfig.Restart = "on-failure";
+        };
       };
 
       preservation.preserveAt."/persistent".directories = [
