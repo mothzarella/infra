@@ -15,6 +15,9 @@
 
     preservation.url = "github:nix-community/preservation";
 
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     securix.url = "github:cloud-gouv/securix";
     securix.flake = false;
   };

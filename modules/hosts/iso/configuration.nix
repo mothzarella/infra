@@ -22,6 +22,7 @@
           (pkgs.disko.override { nix = config.nix.package; }) # lix
           config.nix.package
           pkgs.mkpasswd # not busybox: real yescrypt
+          pkgs.age
           config.system.build.nixos-install
         ];
         text = ''
@@ -46,6 +47,13 @@
             install -D -m 600 /dev/null "/mnt''${entry#*:}"
             mkpasswd -m yescrypt -s <<< "$pw" > "/mnt''${entry#*:}"
           done
+
+          # sops age key, the public half goes in .sops.yaml
+          keyfile=$(nix eval --raw "$flake#nixosConfigurations.$host.config" --apply 'c: c.sops.age.keyFile or ""')
+          if [[ -n $keyfile && ! -e /mnt$keyfile ]]; then
+            install -d -m 700 "$(dirname "/mnt$keyfile")"
+            age-keygen -o "/mnt$keyfile"
+          fi
 
           mkdir -p /mnt/tmp # build on disk and not in the live system's ram
           TMPDIR=/mnt/tmp nixos-install --flake "$flake#$host" --no-root-passwd --no-channel-copy
