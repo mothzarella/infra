@@ -8,9 +8,11 @@
     mango
     disko
     minimal
-    networking
+    iwd
     preservation
+    secrets
     secureboot
+    stig
     virtualisation
     vpn
   ];

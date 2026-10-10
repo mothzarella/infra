@@ -5,14 +5,18 @@
   aspects.tin076 = {
     includes = with config.aspects; [
       anssi
+      antivirus
       bluetooth
       disko
-      lix
-      networking
+      gnome
+      minimal
+      networkmanager
       preservation
+      remote
+      secrets
       secureboot
+      stig
       virtualisation
-      xfce
     ];
 
     user =
@@ -46,20 +50,7 @@
 
         programs.nix-ld.enable = true;
 
-        preservation.preserveAt."/persistent".files =
-          [
-            "/etc/ssh/ssh_host_ed25519_key"
-            "/etc/ssh/ssh_host_ed25519_key.pub"
-          ]
-          |> map (file: {
-            inherit file;
-            how = "symlink";
-            configureParent = true;
-          });
-
         services = {
-          openssh.enable = true;
-
           # hourly undo for /persistent, home included
           # also holds VM disks and ~/.local/share/docker: make them subvolumes if snapshots eat space
           btrbk.instances.persistent = {
