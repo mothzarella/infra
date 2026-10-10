@@ -18,8 +18,26 @@
         });
       };
 
-      environment.corePackages = lib.mkForce [ pkgs.busybox ];
-      environment.stub-ld.enable = false;
+      environment = {
+        # no cleartext remote access tools (STIG V-268131)
+        corePackages = lib.mkForce [
+          (pkgs.busybox.override {
+            extraConfig =
+              [
+                "TELNET"
+                "TELNETD"
+                "FTPD"
+                "FTPGET"
+                "FTPPUT"
+                "TFTP"
+                "TFTPD"
+              ]
+              |> lib.concatMapStrings (a: "CONFIG_${a} n\n");
+          })
+        ];
+        systemPackages = [ pkgs.gitMinimal ]; # flakes
+        stub-ld.enable = false;
+      };
       programs.nano.enable = false; # busybox has vi
 
       documentation.man.man-db.enable = false;
