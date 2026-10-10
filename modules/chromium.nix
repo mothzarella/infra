@@ -114,6 +114,7 @@
           enable = true;
           extraOpts = {
             RestoreOnStartup = 1;
+            BrowserThemeColor = "#${config.theme.bg}";
 
             BlockThirdPartyCookies = true;
             SearchSuggestEnabled = false;

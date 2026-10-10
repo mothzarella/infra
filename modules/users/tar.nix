@@ -1,4 +1,16 @@
-{ config, ... }: {
+{ config, ... }:
+let
+  c = config.theme;
+  neovim =
+    pkgs:
+    pkgs.neovim.override {
+      configure = {
+        packages.vague.start = [ pkgs.vimPlugins.vague-nvim ];
+        customRC = "colorscheme vague";
+      };
+    };
+in
+{
   aspects.tar = {
     includes = with config.aspects; [ xdg ];
 
@@ -12,10 +24,9 @@
         networking.stevenblack.enable = true; # blocklist in /etc/hosts
 
         environment.sessionVariables = {
-          EDITOR = lib.getExe pkgs.neovim;
-          VISUAL = lib.getExe pkgs.neovim;
+          EDITOR = lib.getExe (neovim pkgs);
+          VISUAL = lib.getExe (neovim pkgs);
           DO_NOT_TRACK = "1";
-          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
         };
 
         preservation.preserveAt."/persistent".users.tar.directories = [
@@ -80,6 +91,7 @@
           pfetch
           curl
           openssh # ssh, scp
+          sops # secrets/*.yaml
           ripgrep # grep
           fd # find
           sd # sed
@@ -87,7 +99,6 @@
           bottom # top
           jq # json
           nnn # file manager
-          gitMinimal
           zoxide # cd (w fzf)
           pv # pipe
           tealdeer # tldr
@@ -97,7 +108,7 @@
 
           claude-code
 
-          neovim
+          (neovim pkgs)
           vis
         ];
 
@@ -108,22 +119,22 @@
           set window-title-basename true
           set statusbar-home-tilde true
 
-          set default-bg "#000000"
-          set default-fg "#ffffff"
-          set statusbar-bg "#000000"
-          set statusbar-fg "#ffffff"
-          set inputbar-bg "#000000"
-          set inputbar-fg "#ffffff"
-          set notification-error-bg "#000000"
-          set notification-error-fg "#ff5555"
-          set completion-highlight-bg "#ffffff"
-          set completion-highlight-fg "#000000"
-          set index-active-bg "#ffffff"
-          set index-active-fg "#000000"
+          set default-bg "#${c.bg}"
+          set default-fg "#${c.fg}"
+          set statusbar-bg "#${c.inactiveBg}"
+          set statusbar-fg "#${c.fg}"
+          set inputbar-bg "#${c.bg}"
+          set inputbar-fg "#${c.fg}"
+          set notification-error-bg "#${c.bg}"
+          set notification-error-fg "#${c.error}"
+          set completion-highlight-bg "#${c.keyword}"
+          set completion-highlight-fg "#${c.bg}"
+          set index-active-bg "#${c.keyword}"
+          set index-active-fg "#${c.bg}"
 
           set recolor true
-          set recolor-lightcolor "#000000"
-          set recolor-darkcolor "#ffffff"
+          set recolor-lightcolor "#${c.bg}"
+          set recolor-darkcolor "#${c.fg}"
           set recolor-keephue true
         '';
       };
