@@ -133,11 +133,11 @@
     "securix": {
       "flake": false,
       "locked": {
-        "lastModified": 1790940718,
-        "narHash": "sha256-ua//pRMOq0QFrOXsvduCBkTct7PjeNo3Fye7ne+WKvs=",
+        "lastModified": 1791558225,
+        "narHash": "sha256-dNCjEfjRsjFSgMO+Qd8hOtdUirTPyw6z21evqWAgqRQ=",
         "owner": "cloud-gouv",
         "repo": "securix",
-        "rev": "dbbe586d7cead98b0f0e95a6f75b4801a5b99fa2",
+        "rev": "88f2d2e946611c4f956f292c84c606fa401631c3",
         "type": "github"
       },
       "original": {
