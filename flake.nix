@@ -20,6 +20,9 @@
 
     securix.url = "github:cloud-gouv/securix";
     securix.flake = false;
+
+    fix.url = "github:psyclyx/fix";
+    fix.flake = false;
   };
 
   outputs =

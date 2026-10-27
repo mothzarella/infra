@@ -19,7 +19,7 @@ in
           command = "sh";
           options = [
             "-euc"
-            ''for f; do statix fix "$f" && statix check "$f"; done'' # one path per call, W20 has no autofix
+            ''for f; do statix fix "$f" && statix check "$f"; done''
             "--"
           ];
           includes = [ "*.nix" ];

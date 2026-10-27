@@ -43,6 +43,6 @@
     old=$HOME/.local/state/home-files.conf
     [ -e "$new" ] || new=/dev/null
     [ -e "$old" ] && grep -vxFf "$new" "$old" | cut -d"'" -f2 | while read -r link; do [ -e "$link" ] || rm -f "$link"; done
-    mkdir -p "$HOME/.local/state" && cp "$new" "$old"
+    install -Dm644 "$new" "$old"
   '';
 }

@@ -29,7 +29,6 @@ let
     }
   );
 
-  # deduplicate aspects
   closure =
     roots:
     let
