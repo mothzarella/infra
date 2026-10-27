@@ -1,6 +1,14 @@
 {
   aspects.bluetooth.nixos = {
-    hardware.bluetooth.enable = true;
+    hardware.bluetooth = {
+      enable = true;
+      settings.General.Experimental = true;
+    };
+
+    boot.kernelModules = [
+      "hidp"
+      "uhid"
+    ];
 
     preservation.preserveAt."/persistent".directories = [
       {

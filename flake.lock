@@ -35,6 +35,22 @@
         "type": "github"
       }
     },
+    "fix": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791233298,
+        "narHash": "sha256-z5nkv0cKEebjRzgxuAJOJPVluipibhk406FT0BMtiKo=",
+        "owner": "psyclyx",
+        "repo": "fix",
+        "rev": "e0c1f6d699894e3fcbb480c8e7445ddd3b9467fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "psyclyx",
+        "repo": "fix",
+        "type": "github"
+      }
+    },
     "lanzaboote": {
       "inputs": {
         "crane": "crane",
@@ -103,10 +119,12 @@
     "root": {
       "inputs": {
         "disko": "disko",
+        "fix": "fix",
         "lanzaboote": "lanzaboote",
         "nixpkgs": "nixpkgs_2",
         "preservation": "preservation",
-        "securix": "securix"
+        "securix": "securix",
+        "sops-nix": "sops-nix"
       }
     },
     "rust-overlay": {
@@ -143,6 +161,26 @@
       "original": {
         "owner": "cloud-gouv",
         "repo": "securix",
+        "type": "github"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793052255,
+        "narHash": "sha256-Y/JIHTnMlOabDfyaSBubWGLDIVGihLEUuoMhFvQKaDo=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "60182817ee048ac94b4c68ea76d5ef2e8aac730d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
         "type": "github"
       }
     }

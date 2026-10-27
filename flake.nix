@@ -1,9 +1,4 @@
 {
-  nixConfig = {
-    abort-on-warn = true;
-    allow-import-from-derivation = false;
-  };
-
   inputs = {
     nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
 
@@ -15,8 +10,14 @@
 
     preservation.url = "github:nix-community/preservation";
 
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     securix.url = "github:cloud-gouv/securix";
     securix.flake = false;
+
+    fix.url = "github:psyclyx/fix";
+    fix.flake = false;
   };
 
   outputs =
