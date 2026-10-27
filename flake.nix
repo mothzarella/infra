@@ -1,9 +1,4 @@
 {
-  nixConfig = {
-    abort-on-warn = true;
-    allow-import-from-derivation = false;
-  };
-
   inputs = {
     nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
 
